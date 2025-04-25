@@ -118,19 +118,18 @@ plt.plot(epochs_range, acc, label='Training Accuracy')
 plt.plot(epochs_range, val_acc, label='Validation Accuracy')
 plt.legend(loc='lower right')
 plt.title('Training and Validation Accuracy')
-plt.figure(figsize=(10, 6))
-print("Evaluate model on test data")
-plt.show()
+#plt.show()
 results = model.evaluate(test_ds, batch_size=32, verbose=1)
 print("test loss, test acc:", results)
 model.save('/Users/clem/Projets/prog/cestmonchieng/monchieng.keras')
-tf.keras.models.save_model(
-    model, "/Users/clem/Projets/prog/cestmonchieng/monchieng.h5")
+tf.saved_model.save(
+    model, "saved_model")
 # Export the keras model to a saved model format
-model.export("saved_model")
+# model.export("saved_model")
 
 # Convert the saved model to TensorFlow Lite
-converter = tf.lite.TFLiteConverter.from_saved_model("saved_model")
+# converter = tf.lite.TFLiteConverter.from_saved_model("saved_model")
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
 tflite_model = converter.convert()
 
 # Save the TensorFlow Lite model to a file

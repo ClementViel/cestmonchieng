@@ -34,19 +34,42 @@ def isitmonchieng(num):
         print("pas mon chieng")
 
 
-model = keras.models.load_model(
-    "/Users/clem/Projets/prog/cestmonchieng/monchieng.keras")
+# model = keras.models.load_model(
+#    "/Users/clem/Projets/prog/cestmonchieng/monchieng.keras")
+
+interpreter = tf.lite.Interpreter(
+    model_path="/Users/clem/Projets/prog/cestmonchieng/model_meta/model.tflite")
+interpreter.allocate_tensors()
+
+# Get input and output tensors.
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Test model on random input data.
+input_shape = input_details[0]['shape']
 
 # Generate predictions (probabilities -- the output of the last layer)
 # on new data using `predict`
 img = keras.utils.load_img(
-    "/Users/clem/Downloads/etre_un_bon_maitre_pour_son_chien.jpg", target_size=(IMG_HEIGHT, IMG_WIDTH))
+    "/Users/clem/Downloads/PXL_20250117_145923956.jpg", target_size=(IMG_HEIGHT, IMG_WIDTH))
 
+# img = keras.utils.load_img(
+#    "/Users/clem/Downloads/not_java.jpg", target_size=(IMG_HEIGHT, IMG_WIDTH))
 
 img_array = keras.utils.img_to_array(img)
-img_array = keras.ops.expand_dims(img_array, 0)  # Create batch axis
+img_array = np.expand_dims(img_array, 0)  # Create batch axis
+interpreter.set_tensor(input_details[0]['index'], img_array)
 
-predictions = model.predict(img_array)
-print(predictions[0][0])
-print(predictions[0][1])
-isitmonchieng(predictions[0][0])
+interpreter.invoke()
+
+# The function `get_tensor()` returns a copy of the tensor data.
+# Use `tensor()` in order to get a pointer to the tensor.
+output_data = interpreter.get_tensor(output_details[0]['index'])
+print("result ", output_data)
+
+
+# predictions = model.predict(img_array)
+# print(predictions[0][0])
+# print(predictions[0][1])
+
+# isitmonchieng(predictions[0][0])
